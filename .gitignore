@@ -1,0 +1,11 @@
+.env
+__pycache__
+output
+outputs
+config.yaml
+agentprog_scripts
+data
+.history
+*.egg-info
+.vscode
+.venv
