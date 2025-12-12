@@ -40,11 +40,13 @@ AgentProg addresses partial observability and environmental dynamics in GUI envi
 
 Task description:
 
+```
 For the following persons:
 Name: Hana Ferreira, Number: +10662908339
 Name: Sophie Martin, Number: +18723713947
 Name: Olivia Alves, Number: +16278036185, 
 add them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact.
+```
 
 Video (accelerated):
 
