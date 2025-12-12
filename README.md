@@ -63,10 +63,15 @@ pip install -e .
 
 Python 3.11+ is recommended for running the agent.
 
-Copy `.env.example` to `.env`, and set the Gemini API key and base URL in `.env`:
+Next, edit the `.env` file to include the required API keys. These keys are necessary to access the underlying large language models.
 
-```
-GEMINI_API_KEY=<YOUR_API_KEY_HERE>
+```env
+# Credentials for Google Gemini-2.5-Pro
+GEMINI_API_KEY=<YOUR_GEMINI_API_KEY_HERE>
+
+# Credentials for UI-TARS-1.5 on the Volcengine Ark platform
+ARK_API_KEY=<YOUR_ARK_API_KEY_HERE>
+DOUBAO_BASE_URL=<YOUR_DOUBAO_BASE_URL_HERE>
 ```
 
 Prepare an Android phone or Android emulator and connect it using adb.
