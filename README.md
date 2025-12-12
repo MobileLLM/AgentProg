@@ -44,6 +44,11 @@ Name: Sophie Martin, Number: +18723713947
 Name: Olivia Alves, Number: +16278036185, 
 add them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact.
 
+Video (accelerated):
+
+https://github.com/user-attachments/assets/1cd20e7d-5399-4289-b869-bdafd815d8c1
+
+
 
 
 ## 🚀 Getting Started
