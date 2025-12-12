@@ -2,7 +2,6 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 from typing import Any
-from agentprog.all_utils.log_utils import enable_log, structlog
 import time
 import math
 from agentprog.all_utils.general_utils import Messages, init_get_openai_response, init_get_parsed_response, make_user, init_get_claude_response, init_get_gemini_response, InitResponseArgs, TokenStatistics
@@ -49,20 +48,20 @@ def generate_script(task_description, get_prompt, get_response, response_parser,
     context_logger.info("end timing...")
 
     execution_time = end_time - start_time
-    print("=" * 20)
-    print(res)
-    print("=" * 20)
-    print("=" * 20)
-    print(thought)
-    print("=" * 20)
-    print(code)
-    print("=" * 20)
+    logger.info("=" * 20)
+    logger.info(res)
+    logger.info("=" * 20)
+    logger.info("=" * 20)
+    logger.info(thought)
+    logger.info("=" * 20)
+    logger.info(code)
+    logger.info("=" * 20)
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(f"# {execution_time:.4f} seconds" + "\n" + code)
     context_logger.info("write code successfully")
 
-    print(f"generation time: {execution_time:.4f} seconds")
+    logger.info(f"generation time: {execution_time:.4f} seconds")
 
 def query_llm(get_response, prompt, output_path):
     start_time = time.perf_counter()
@@ -70,7 +69,7 @@ def query_llm(get_response, prompt, output_path):
     end_time = time.perf_counter()
     
     execution_time = end_time - start_time
-    print(f"generation time: {execution_time:.4f} seconds")
+    logger.info(f"generation time: {execution_time:.4f} seconds")
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(f"# {execution_time:.4f} seconds" + "\n" + str(res))

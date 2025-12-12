@@ -3,7 +3,7 @@ import structlog
 import logging
 from itertools import chain
 logger = logging.getLogger()
-LOG_LEVEL = logging.INFO # 全局日志级别
+LOG_LEVEL = logging.WARN # 全局日志级别
 
 def enable_log(logging_path: str = None):
     def filter_by_level(

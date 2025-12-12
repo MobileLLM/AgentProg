@@ -1,6 +1,6 @@
 from agentprog.plan.agentprog_utils import AgentProgContext, LLMQueryMode
 
-def update_belief_state_prompt_mobile(interpreter_llm_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
+def update_belief_state_prompt_mobile(agent_prog_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
     if not framework_prompt:
         framework_prompt = "No framework prompt provided."
     generation_mode_str = "Update Belief State"
@@ -9,7 +9,7 @@ So, your current task is to execute the following line based on the variable val
 {current_line}
 
 '''
-    if interpreter_llm_context.belief_state is None:
+    if agent_prog_context.belief_state is None:
         additional_info += 'The current belief state is empty, you should construct a new belief state.'
     else:
         additional_info += '''
@@ -23,8 +23,8 @@ The current plan related to belief state:
 ```
 请仔细检查 Current Belief State 中是否存在与 current_screenshot 相矛盾的情况，如果有，你需要按照约定更新正确的状态，并修复错误。
 '''\
-.replace("{belief_state}", interpreter_llm_context.belief_state.belief_state_str)\
-.replace("{belief_state_plan}", interpreter_llm_context.belief_state.plan)
+.replace("{belief_state}", agent_prog_context.belief_state.belief_state_str)\
+.replace("{belief_state_plan}", agent_prog_context.belief_state.plan)
     return '''
 # Introduction
 
@@ -151,12 +151,12 @@ Mode: {generation_mode}
 {additional_info}
 
 '''\
-.replace("{task_description}", interpreter_llm_context.task_description)\
-.replace("{workflow_context}", interpreter_llm_context.workflow_context_str)\
-.replace("{data_and_variables}", interpreter_llm_context.data_and_variables)\
-.replace("{python_context}", interpreter_llm_context.python_context)\
+.replace("{task_description}", agent_prog_context.task_description)\
+.replace("{workflow_context}", agent_prog_context.workflow_context_str)\
+.replace("{data_and_variables}", agent_prog_context.data_and_variables)\
+.replace("{python_context}", agent_prog_context.python_context)\
 .replace("{generation_mode}", generation_mode_str)\
 .replace("{additional_info}", additional_info)\
-.replace("{current_line}", interpreter_llm_context.current_line)\
+.replace("{current_line}", agent_prog_context.current_line)\
 .replace("{framework_prompt}", framework_prompt)\
 .replace("{example_prompt}", example_prompt)

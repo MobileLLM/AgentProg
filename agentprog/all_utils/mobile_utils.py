@@ -166,6 +166,284 @@ def extract_broadcast_data(raw_output: str) -> Optional[str]:
   else:
     raise ValueError(f'Unexpected broadcast output: {raw_output}')
 
+
+class MobileAPIBase:
+    """
+    Base class for mobile device API that combines locator and executor
+    Supports different locator implementations while maintaining the same API interface
+    """
+
+    # ==================== Android-specific APIs ====================
+    
+    def start_app(self, app_name: str) -> bool:
+        """
+        Open the app named app_name (Android only)
+        
+        Args:
+            app_name: Name of the app to start
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def kill_app(self, app_name: str) -> bool:
+        """
+        Kill the app named app_name (Android only)
+        
+        Args:
+            app_name: Name of the app to kill
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+        
+    def _locate_element(self, view_description: str):
+        """
+        Internal method to locate an element and return coordinates
+        
+        Args:
+            view_description: Description of the view to locate
+            
+        Returns:
+            tuple: (x, y) coordinates of the element center
+        """
+        raise NotImplementedError()
+
+    def _long_touch(self, x, y, duration=None) -> bool:
+        raise NotImplementedError()
+
+
+    def _click(self, x, y):
+        raise NotImplementedError()
+
+
+    def _clear(self):
+        raise NotImplementedError()
+
+    def _get_width_height(self):
+        raise NotImplementedError()
+
+    def _do_drag(self, start_xy, end_xy, duration=None) -> bool:
+        raise NotImplementedError()
+
+    def _clear_and_input(self, text):
+        raise NotImplementedError()
+
+    def _view_set_text(self, text) -> bool:
+        raise NotImplementedError()
+
+    def _view_append_text(self, text: str) -> bool:
+        raise NotImplementedError()
+
+
+    def _view_paste_text(self, text: str) -> bool:
+        raise NotImplementedError()
+
+    def get_input_field_text(self, view_description: str) -> str:
+        """
+        Get the text from the input field specified by view_description
+        
+        Args:
+            view_description: Description of the input field
+            
+        Returns:
+            str: Text content of the input field
+        """
+        raise NotImplementedError()
+
+    def get_clipboard(self) -> str:
+        raise NotImplementedError()
+
+    def set_clipboard(self, text: str) -> bool:
+        raise NotImplementedError()
+
+    def expand_notification_panel(self):
+        raise NotImplementedError()
+
+    def take_screenshot(self, save_path=None) -> Image.Image:
+        raise NotImplementedError()
+
+    def back(self):
+        raise NotImplementedError()
+
+    def home(self):
+        raise NotImplementedError()
+
+    def back_to(self, description: str, max_steps: int = 5) -> bool:
+        """
+        Navigate back to the view described by description
+        
+        Args:
+            description: Description of the target view
+            max_steps: Maximum number of back steps to try
+            
+        Returns:
+            bool: True if reached target, False otherwise
+        """
+        raise NotImplementedError()
+
+    def swipe_upward(self, view_description: str, distance: Optional[int] = None) -> bool:
+        """
+        Swipe up on the view specified by view_description
+        
+        Args:
+            view_description: Description of the view to swipe
+            distance: Distance to swipe (in pixels), default is screen height / 3
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def swipe_downward(self, view_description: str, distance: Optional[int] = None) -> bool:
+        """
+        Swipe down on the view specified by view_description
+        
+        Args:
+            view_description: Description of the view to swipe
+            distance: Distance to swipe (in pixels), default is screen height / 3
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def swipe_leftward(self, view_description: str, distance: Optional[int] = None) -> bool:
+        """
+        Swipe left on the view specified by view_description
+        
+        Args:
+            view_description: Description of the view to swipe
+            distance: Distance to swipe (in pixels), default is screen width / 3
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def swipe_rightward(self, view_description: str, distance: Optional[int] = None) -> bool:
+        """
+        Swipe right on the view specified by view_description
+        
+        Args:
+            view_description: Description of the view to swipe
+            distance: Distance to swipe (in pixels), default is screen width / 3
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def swipe_until(
+        self,
+        view_description: str,
+        expected_desc: str,
+        towards: str = "up",
+        duration: int = 1000,
+        max_retry: int = 10
+    ) -> bool:
+        """
+        Swipe the view specified by view_description until expected_desc is fulfilled
+        
+        Args:
+            view_description: Description of the view to swipe
+            expected_desc: Description of the expected result
+            towards: Direction to swipe ("up", "down", "left", "right")
+            duration: Duration of each swipe in milliseconds
+            max_retry: Maximum number of swipes to try
+            
+        Returns:
+            bool: True if expected view appears, False otherwise
+        """
+        raise NotImplementedError()
+
+    def wait_until(
+        self,
+        description: str,
+        waitInterval: float = 0.5,
+        timeout: float = 5
+    ) -> bool:
+        """
+        Wait for a view described by description to appear
+        
+        Args:
+            description: Description of the view to wait for
+            waitInterval: Interval between checks in seconds
+            timeout: Maximum time to wait in seconds (-1 means unlimited)
+            
+        Returns:
+            bool: True if view appears, False otherwise
+        """
+        raise NotImplementedError()
+
+    def check(self, description: str) -> bool:
+        """
+        Check whether the current screen state matches description
+        
+        Args:
+            description: Description of the expected screen state
+            
+        Returns:
+            bool: True if matched, False otherwise
+        """
+        raise NotImplementedError()
+
+    def long_click(self, view_description: str) -> bool:
+        """
+        Long click the view specified by view_description for 1 second
+        
+        Args:
+            view_description: Description of the view to long click
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    
+    def click(self, view_description: str) -> bool:
+        """
+        Click the view specified by view_description
+        
+        Args:
+            view_description: Description of the view to click
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def input(self, view_description: str, text: str) -> bool:
+        """
+        Clear the input field specified by view_description and input the given text
+        You don't have to call a keyboard; use this input method directly
+        
+        Args:
+            view_description: Description of the input field
+            text: Text to input
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
+    def input_by_pasting(self, view_description: str, text: str) -> bool:
+        """
+        Input text into the view specified by view_description by pasting
+        Use this when standard input doesn't work, such as in the WeChat app
+        
+        Args:
+            view_description: Description of the input field
+            text: Text to input by pasting
+            
+        Returns:
+            bool: True if successful
+        """
+        raise NotImplementedError()
+
 @dataclass
 class MobileAPIConfig:
     locator: Literal["ui_tars", "aw"]
@@ -285,7 +563,7 @@ def get_locator(config: MobileAPIConfig, mobile_api: MobileAPI):
             from agentprog.all_utils.aw_utils import AndroidWorldLocator
             return AndroidWorldLocator(config, mobile_api)
 
-class MobileAPI:
+class MobileAPI(MobileAPIBase):
     """
     Base class for mobile device API that combines locator and executor
     Supports different locator implementations while maintaining the same API interface

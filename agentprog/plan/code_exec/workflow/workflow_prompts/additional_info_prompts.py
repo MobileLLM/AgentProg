@@ -2,14 +2,11 @@ from typing import Any, Callable
 from agentprog.plan.agentprog_utils import AgentProgContext
 from agentprog.plan.workflow_utils import ERROR_INFO_NAME, WorkflowNodeType, grab_similar_nodes
 
-def get_additional_info_for_code_generation_mobile(interpreter_llm_context: AgentProgContext, similar_workflows=None):
-    workflow_context = interpreter_llm_context.workflow_context
+def get_additional_info_for_code_generation_mobile(agent_prog_context: AgentProgContext, similar_workflows=None):
+    workflow_context = agent_prog_context.workflow_context
     if similar_workflows is None:
         similar_workflows = grab_similar_nodes(workflow_context)
     additional_info = ""
-
-    if interpreter_llm_context.preparations: # Add preparation info
-        additional_info += f'You need to ensure the following preparations are made before starting the workflow:\n```\n{interpreter_llm_context.preparations}\n```\n'
 
     additional_info += f"Observe whether the `{ERROR_INFO_NAME}` variable in the Python Context indicates an error. If an error is reported, it means the code you executed in the Python Context was not successful. You need to learn from previous experiences and lessons, adjust your strategy, and try to solve the problem again. Do not repeat the same mistakes.\n"
     if workflow_context is not None and workflow_context.workflow_reflection:
@@ -46,8 +43,8 @@ If the condition judgment is difficult, you can call llm.query to let the large 
 """
     return additional_info
 
-def get_additional_info_for_workflow_status_update_mobile(interpreter_llm_context: AgentProgContext, similar_workflows=None):
-    workflow_context = interpreter_llm_context.workflow_context
+def get_additional_info_for_workflow_status_update_mobile(agent_prog_context: AgentProgContext, similar_workflows=None):
+    workflow_context = agent_prog_context.workflow_context
 
     additional_info = ""
     additional_info += "It is now Workflow Status Update mode. You need to and can only select one of the following WPC operations as Action: hold, continue, break, return. First, you need to observe whether `error_info` exists. If there is error information, you **must** point out the problem in time, propose modification suggestions, and output `hold`. Secondly, please judge based on the information in Context and Variable whether the code generated last time has strictly completed the step indicated by `current step`. If not yet satisfied, please point out the problem, make suggestions, and output `hold`. For mobile operation tasks, usually multiple steps are required to complete. Therefore, please carefully check whether the goal of `current step` is confirmed to be fully completed, and whether the belief state has raised noteworthy issues (such as unexpected situations outside the plan that need correction). If not completed, output `hold`."

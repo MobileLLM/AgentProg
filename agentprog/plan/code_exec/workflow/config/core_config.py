@@ -18,6 +18,8 @@ class AgentProgConfig:
     use_aw_locator: bool = False
     tensorboard_log_dir: str = None
     logging_path: str = None
+    show_dashboard: bool = True
+    fold_dashboard: bool = False
 
     @classmethod
     def get_field_names(cls):

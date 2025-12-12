@@ -1,10 +1,11 @@
-# 返回值要么为一个 Prompt，要么为一个 Cached Answer。
+from __future__ import annotations
 from dataclasses import field, dataclass
 from enum import Enum, auto
 import traceback
 from agentprog.all_utils.fm import FoundationModel
 from agentprog.all_utils.mobile_utils import MobileAPI
 from agentprog.plan.belief.belief_state import BeliefState
+from agentprog.plan.tui.dashboard import AgentLogVisualizer
 from agentprog.plan.workflow_utils import WorkflowContext, LLMQueryMode, WorkflowProgramCounterOperation, collect_variables_list, summarize_variables
 import os
 
@@ -15,6 +16,7 @@ class RequestMode(Enum):
 
 class ToolSet(Enum):
     mobile = auto()
+    ai_phone = auto()
 
 ignore_class_attr = (FoundationModel, MobileAPI)
 hidden_class_attr = (FoundationModel, MobileAPI)
@@ -36,7 +38,6 @@ class AgentProgContext: # 存储从 workflow_context 中解析的临时信息，
     python_context: str = ''
     current_line: str = ''
     llm_query_mode: LLMQueryMode = None
-    preparations: str = '' # 执行 workflow 之前的准备工作
     belief_state: BeliefState = field(default_factory=lambda: BeliefState('', ''))
 
     def to_json(self):
@@ -197,3 +198,21 @@ global variables:
 local variables:
 {summarize_variables(local_vars, ignore_class_attr=(), hidden_class_attr=())}
 """
+
+
+def show_dashboard(agent_prog_context: AgentProgContext, action: str=None, folded: bool=True):
+    show_data = {
+        "goal": agent_prog_context.task_description,
+        "workflow_context_str": agent_prog_context.workflow_context_str,
+        "code_context": agent_prog_context.python_context,
+        "data_and_variables": agent_prog_context.data_and_variables,
+        "belief_state": agent_prog_context.belief_state.belief_state_str,
+        "plan": agent_prog_context.belief_state.plan,
+    }
+    if action is not None:
+        show_data.update({"action": action})
+    print(show_data)
+    breakpoint()
+    dashboard = AgentLogVisualizer()
+    dashboard.show(show_data, folded=folded)
+    breakpoint()

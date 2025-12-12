@@ -44,8 +44,77 @@ def _agentprog_run_mobile(config: AgentProgConfig):
         llm=llm,
         locator_config=None
     ))
-    def get_screenshot_dict(interpreter_llm_context: AgentProgContext):
-        return interpreter_llm_context.workflow_context.global_vars.get(SCREENSHOT_DICT, {})
+    def get_screenshot_dict(agent_prog_context: AgentProgContext):
+        return agent_prog_context.workflow_context.global_vars.get(SCREENSHOT_DICT, {})
+    def get_screenshot_func(image_dir: Path, text_mode: bool=False, text_augment: bool=False):
+        img_count = 0
+        if image_dir.exists():
+            shutil.rmtree(image_dir)
+        def get_screenshot():
+            nonlocal img_count
+            image_filename = Path(f"screenshot_{img_count}.png")
+            image_filepath = image_dir / image_filename
+            image_filepath.parent.mkdir(parents=True, exist_ok=True)
+            screenshot: Image.Image = mobile_api.take_screenshot()
+            resized_screenshot = screenshot.resize((round(screenshot.width / 4), round(screenshot.height / 4)))
+            resized_screenshot.save(image_filepath)
+            img_count += 1
+            if not text_mode:
+                image_id = image_filepath.resolve()
+                return f'{IMAGE_START}{image_id}{IMAGE_END}' + ("\nText Description: " + get_text_description(resized_screenshot, llm) if text_augment else '')
+            else:
+                return get_text_description(resized_screenshot)
+        return get_screenshot
+    
+    task_description = config.task_description
+    workflow_script = Path(config.workflow_path).read_text() # anything begins from nothing.
+
+    inject_global_vars = {
+        "llm": llm,
+        "mobile": mobile_api,
+        SCREENSHOT_FUNC: get_screenshot_func(image_dir=Path(config.image_dir), text_augment=False, text_mode=False),
+        SCREENSHOT_DICT: {}
+    }
+    def workflow_callback(global_vars, local_vars):
+        meta_info_dir = Path(config.meta_info_dir)
+        if config.meta_info_dir:
+            meta_info_dir.mkdir(parents=True, exist_ok=True)
+            (meta_info_dir / "completion_statistics.json").write_text(json.dumps(dump_completion_statistics_dict()))
+
+        exec(f"""
+current_screenshot = {SCREENSHOT_FUNC}()
+if current_screenshot.startswith('{IMAGE_START}') and current_screenshot.endswith('{IMAGE_END}'):
+    {HIDDEN_VARS_PREFIX}_image_id = current_screenshot.removeprefix('{IMAGE_START}').removesuffix('{IMAGE_END}')
+    {SCREENSHOT_DICT}[{HIDDEN_VARS_PREFIX}_image_id]={HIDDEN_VARS_PREFIX}_image_id
+""", global_vars, local_vars)
+    from agentprog.plan.code_exec.workflow.workflow_prompts.update_belief_state_prompt import update_belief_state_prompt_mobile
+    match RequestMode[config.request_mode]:
+        case RequestMode.api:
+            # api mode
+            from agentprog.plan.code_exec.workflow.workflow_prompts.workflow_prompt_set import CoTMobileWorkflowPromptSet, CoTMobileWorkflowPromptSetWithBeliefState
+
+            workflow_prompt_set_cls = CoTMobileWorkflowPromptSetWithBeliefState if config.use_belief_state else CoTMobileWorkflowPromptSet
+            return run_workflow(config, get_response, task_description, workflow_script, workflow_prompt_set=workflow_prompt_set_cls(get_images=get_screenshot_dict, update_belief_state=update_belief_state_prompt_mobile, get_framework_prompt=(lambda : get_mobile_prompt(get_date_on_mobile_phone(config.serial)))), inject_global_vars=inject_global_vars, workflow_callback=workflow_callback)
+
+
+def _agentprog_run_ai_phone(config: AgentProgConfig):
+    from agentprog.all_utils.mobile_utils import get_text_description, MobileAPI, MobileAPIConfig
+    from agentprog.all_utils.fm import get_default_fm
+    SCREENSHOT_FUNC = f"{HIDDEN_VARS_PREFIX}_get_screenshot"
+    SCREENSHOT_DICT = f"{HIDDEN_VARS_PREFIX}_screenshot_dict"
+    get_response = init_get_gemini_response(init_response_args=InitResponseArgs(model='vertex_ai/gemini-2.5-pro', record_completion_statistics=True, token_budget=TokenStatistics(prompt_tokens=550000 * 6, completion_tokens=120000 * 6), tensorboard_log_dir=config.tensorboard_log_dir))
+
+    llm = get_default_fm(get_response=get_response)
+    llm.retry_times = 30
+
+    mobile_api = MobileAPI(config=MobileAPIConfig(
+        locator='ui_tars',
+        device_serial_id=config.serial,
+        llm=llm,
+        locator_config=None
+    ))
+    def get_screenshot_dict(agent_prog_context: AgentProgContext):
+        return agent_prog_context.workflow_context.global_vars.get(SCREENSHOT_DICT, {})
     def get_screenshot_func(image_dir: Path, text_mode: bool=False, text_augment: bool=False):
         img_count = 0
         if image_dir.exists():
@@ -94,11 +163,12 @@ if current_screenshot.startswith('{IMAGE_START}') and current_screenshot.endswit
             from agentprog.plan.code_exec.workflow.workflow_prompts.workflow_prompt_set import CoTMobileWorkflowPromptSet, CoTMobileWorkflowPromptSetWithBeliefState
 
             workflow_prompt_set_cls = CoTMobileWorkflowPromptSetWithBeliefState if config.use_belief_state else CoTMobileWorkflowPromptSet
-            return run_workflow(get_response, task_description, workflow_script, workflow_prompt_set=workflow_prompt_set_cls(get_images=get_screenshot_dict, update_belief_state=update_belief_state_prompt_mobile, get_framework_prompt=(lambda : get_mobile_prompt(get_date_on_mobile_phone(config.serial)))), inject_global_vars=inject_global_vars, workflow_callback=workflow_callback, cache_mode=config.cache_mode, use_belief_state=config.use_belief_state)
+            return run_workflow(config, get_response, task_description, workflow_script, workflow_prompt_set=workflow_prompt_set_cls(get_images=get_screenshot_dict, update_belief_state=update_belief_state_prompt_mobile, get_framework_prompt=(lambda : get_mobile_prompt(get_date_on_mobile_phone(config.serial)))), inject_global_vars=inject_global_vars, workflow_callback=workflow_callback, cache_mode=config.cache_mode, use_belief_state=config.use_belief_state)
 
 def agentprog_run_core(config: AgentProgConfig):
     _agentprog_run_router = {
         ToolSet.mobile: _agentprog_run_mobile,
+        ToolSet.ai_phone: _agentprog_run_ai_phone,
     }
 
     workflow_result = _agentprog_run_router[ToolSet[config.tool_set]](config)

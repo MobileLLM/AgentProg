@@ -11,19 +11,19 @@ from agentprog.plan.code_exec.workflow.workflow_prompts.additional_info_prompts 
 from agentprog.plan.workflow_utils import LLMQueryMode
 
 class GetCorePrompt(Protocol):
-    def __call__(self, interpreter_llm_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str="") -> str:
+    def __call__(self, agent_prog_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str="") -> str:
         raise NotImplementedError("get prompt function doesn't set!")
 
 class GetAdditionalInfoPrompt(Protocol):
-    def __call__(self, interpreter_llm_context: AgentProgContext, similar_workflows=None) -> str:
+    def __call__(self, agent_prog_context: AgentProgContext, similar_workflows=None) -> str:
         raise NotImplementedError("get prompt function doesn't set!")
 
 class GetPreparationStepPrompt(Protocol):
-    def __call__(interpreter_llm_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
+    def __call__(agent_prog_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
         raise NotImplementedError("get prompt function doesn't set!")
 
 class UpdateBeliefStatePrompt(Protocol):
-    def __call__(interpreter_llm_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
+    def __call__(agent_prog_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
         raise NotImplementedError("get prompt function doesn't set!")
 
 class GetFrameworkPrompt(Protocol):
@@ -64,12 +64,12 @@ class StandardWorkflowPromptSet(WorkflowPromptSetBase):
     def __post_init__(self):
         self.get_additional_info = self.route_additional_info_prompt
     
-    def route_additional_info_prompt(self, interpreter_llm_context: AgentProgContext, similar_workflows=None):
-        match interpreter_llm_context.llm_query_mode:
+    def route_additional_info_prompt(self, agent_prog_context: AgentProgContext, similar_workflows=None):
+        match agent_prog_context.llm_query_mode:
             case LLMQueryMode.CodeGeneration:
-                return self.get_additional_info_for_code_generation(interpreter_llm_context, similar_workflows)
+                return self.get_additional_info_for_code_generation(agent_prog_context, similar_workflows)
             case LLMQueryMode.WorkflowStatusUpdate:
-                return self.get_additional_info_for_workflow_status_update(interpreter_llm_context, similar_workflows)
+                return self.get_additional_info_for_workflow_status_update(agent_prog_context, similar_workflows)
 
 @dataclass
 class MobileWorkflowPromptSet(StandardWorkflowPromptSet):

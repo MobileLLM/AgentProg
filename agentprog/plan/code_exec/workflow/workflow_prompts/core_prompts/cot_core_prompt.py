@@ -1,9 +1,9 @@
 from agentprog.plan.agentprog_utils import AgentProgContext, LLMQueryMode
 
-def get_cot_core_prompt(interpreter_llm_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
+def get_cot_core_prompt(agent_prog_context: AgentProgContext, example_prompt: str, additional_info: str, framework_prompt: str=""):
     if not framework_prompt:
         framework_prompt = "No framework prompt provided."
-    match interpreter_llm_context.llm_query_mode:
+    match agent_prog_context.llm_query_mode:
         case LLMQueryMode.CodeGeneration:
             generation_mode_str = "Code generation"
             additional_info += '''
@@ -111,12 +111,12 @@ Mode: {generation_mode}
 {additional_info}
 
 '''\
-.replace("{task_description}", interpreter_llm_context.task_description)\
-.replace("{workflow_context}", interpreter_llm_context.workflow_context_str)\
-.replace("{data_and_variables}", interpreter_llm_context.data_and_variables)\
-.replace("{python_context}", interpreter_llm_context.python_context)\
+.replace("{task_description}", agent_prog_context.task_description)\
+.replace("{workflow_context}", agent_prog_context.workflow_context_str)\
+.replace("{data_and_variables}", agent_prog_context.data_and_variables)\
+.replace("{python_context}", agent_prog_context.python_context)\
 .replace("{generation_mode}", generation_mode_str)\
 .replace("{additional_info}", additional_info)\
-.replace("{current_line}", interpreter_llm_context.current_line)\
+.replace("{current_line}", agent_prog_context.current_line)\
 .replace("{framework_prompt}", framework_prompt)\
 .replace("{example_prompt}", example_prompt)

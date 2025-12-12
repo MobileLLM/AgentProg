@@ -1,23 +1,3 @@
-'''
-1. https://peps.python.org/pep-0667/ 指出 python 3.12 及以前的 f_locals 的实现存在一些问题，导致 pdb 出现一些意外情况。我们的代码也使用了 f_locals 作为实现，尚且不知道这种现象是否会对我们的执行器造成影响。
-```
-
-2. 另一个bug：https://peps.python.org/pep-0227/
-List comprehensions and generator expressions have their own scope and that scope only sees global variables, not dynamic locals like in exec().
-这个 bug 会导致我们无法在 exec 中使用列表推导式，示例如下：
-
-```python
-script = """
-INF = float('inf')
-dp = [[INF] * 4 for _ in range(1 << 4)]
-"""
-local_vars = {}
-
-code = compile(script, "<filename>", "exec")
-exec(code, globals(), local_vars)
-```
-
-'''
 from __future__ import annotations
 import bdb
 import contextlib
@@ -26,21 +6,18 @@ from functools import partial
 import inspect
 from itertools import groupby
 import itertools
-import json
-import linecache
-from pathlib import Path
 import traceback
 from types import FrameType
 from typing import Callable, Iterable, List, Optional, Iterator, Any, Dict, Tuple
 from dataclasses import dataclass, field
 from enum import Enum, auto
 import uuid
-from rich.syntax import Syntax
-import os
-from rich.console import Console
 import pandas as pd
+from agentprog.all_utils import log_utils
 from agentprog.all_utils.ast_utils import replace_break, replace_returns
-from agentprog.all_utils.debug import need_breakpoint, need_runtime_point
+from agentprog.all_utils.debug import need_runtime_point
+
+logger = log_utils.get_logger(__name__)
 
 INDENT_WIDTH = 4
 SNIPE_STATE = '<snipe>' # snipe description
@@ -60,18 +37,6 @@ HIDDEN_VARS_PREFIX = '_hidden_agentprog'
 MAX_RETRY_TIME = 100
 MAX_LOOP_TIME = 100
 
-console = Console()
-
-def clear_and_print_pairs(*pairs):
-    # if not need_breakpoint: return
-    # 清空终端
-    # os.system("cls" if os.name == "nt" else "clear")
-    for before, code in pairs:
-        console.print(before)
-        # 语法高亮显示 Python 代码
-        syntax = Syntax(code, "python", theme="monokai", line_numbers=True, word_wrap=True)
-        console.print(syntax)
-        
 class Chain:
     def __init__(self, func=lambda x: x):
         '''
@@ -277,7 +242,7 @@ def _execute_in_context(script: str, filename: str, global_vars: Dict[str, Any],
         exit(-1)
     except Exception as e:
         error = e
-        print(f"Error executing code: {traceback.format_exc()}, {type(e)}: {e}")
+        logger.error(f"Error executing code: {traceback.format_exc()}, {type(e)}: {e}")
         if isinstance(e, RuntimeError):
             if need_runtime_point: breakpoint()
         try:
@@ -1106,7 +1071,7 @@ class WorkflowRoot(WorkflowContext):
         res = super().__post_init__()
         self.script = self.root_script
         self.exec_script, self.compiled_function_list, self.line_mapping = compile_workflow(self.root_script)
-        print("compiled_workflow: \n", self.exec_script)
+        logger.info("compiled_workflow: \n" + self.exec_script)
         # 添加返回值和 break_flag 全局变量.
         self.global_vars.update({
             BREAK_FLAG_NAME: False,
@@ -1185,7 +1150,7 @@ class WorkflowSystem:
         获取一个新的 plan。
         '''
         
-        print("开始 plan:", description) # 现在关闭缓存！
+        logger.info("开始 plan:" + description) # 现在关闭缓存！
         
         # 初始化变量。
         new_global_vars = current_frame.f_globals
@@ -1355,7 +1320,7 @@ class WorkflowSystem:
                     
         if workflow_context.state == ContextState.JUMP_WPC:
             # 获取上下文并调用模型
-                # clear_and_print(plan.root.description, plan.show_prettified_script(), "global vars: ", plan.filtered_global_vars, "local vars:", plan.filtered_local_vars, "current script: ", script)
+                # clear_and_logger.info(plan.root.description, plan.show_prettified_script(), "global vars: ", plan.filtered_global_vars, "local vars:", plan.filtered_local_vars, "current script: ", script)
 
             if self.model is not None:
                 generated_code = self.model.code_generation(workflow_context, script_executor)
@@ -1460,19 +1425,6 @@ class WorkflowSystem:
             pass
         elif workflow_context.state == ContextState.SNIPE:
             pass
-        elif workflow_context.state == ContextState.RECOVER:
-            # 获取当前 script
-            full_script: str = self.plan_tree_hashmap[workflow_context.comment_id]['script']
-            new_script_lines = []
-            for line in full_script.splitlines():
-                if not line.strip().startswith("#"):
-                    if not line.strip().startswith("comment('')"):
-                        new_script_lines.append(line)
-                        break
-            new_script = "\n".join(new_script_lines)
-
-            clear_and_print_pairs(workflow_context.root.description, workflow_context.show_prettified_script(), "global vars: ", workflow_context.filtered_global_vars, "local vars:", workflow_context.filtered_local_vars, "current script: ", new_script)
-            script_executor(new_script)
 
     @contextlib.contextmanager
     def plan(self, description: str):
@@ -1487,7 +1439,7 @@ class WorkflowSystem:
 
     def workflow(self, description, workflow_node_type: str, workflow_callback: WorkflowCallback=None):
         workflow_callback = workflow_callback or self.workflow_callback
-        print("workflow_node_type: ", workflow_node_type)
+        logger.info("workflow_node_type: " + workflow_node_type)
         current_frame = _find_frame(inspect.currentframe())
         if callable(workflow_callback):
             workflow_callback(current_frame.f_globals, current_frame.f_locals)
