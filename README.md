@@ -6,7 +6,7 @@
 
 AgentProg is a novel framework that tackles the critical bottleneck of context management in long-horizon GUI automation. Traditional agents struggle with ever-expanding interaction histories, leading to context overflow and loss of critical information. AgentProg reframes this challenge by representing the agent's execution as a **structured program** with explicit variables and control flow, providing a principled mechanism to retain essential information while discarding irrelevant details.
 
-<img src="assets/introduction.svg" alt="SVG Image">
+<img src="assets/introduction.png" alt="Introduction Image">
 
 ## 🌟 Key Features
 
