@@ -462,7 +462,7 @@ class LocatorAPI(ABC):
         pass
 
 class UiTarsLocator(LocatorAPI):
-    def __init__(self, config: MobileAPIConfig, mobile_api: MobileAPI):
+    def __init__(self, config: MobileAPIConfig, mobile_api: MobileAPIBase):
         from agentprog.all_utils.ui_tars_utils import init_get_ui_tars_response
         self.config = config
         self.mobile_api = mobile_api
@@ -481,13 +481,13 @@ class UiTarsLocator(LocatorAPI):
             get_ui_tars_response = init_get_ui_tars_response(init_response_args=InitResponseArgs(model="doubao-1.5-ui-tars-250428", record_completion_statistics=True, tensorboard_log_dir=config.tensorboard_log_dir))
         self.get_ui_tars_response = get_ui_tars_response
 
-    @property
-    def width(self):
-        return self.mobile_api._get_width_height()[0]
+    # @property
+    # def width(self):
+    #     return self.mobile_api._get_width_height()[0]
     
-    @property
-    def width(self):
-        return self.mobile_api._get_width_height()[1]
+    # @property
+    # def height(self):
+    #     return self.mobile_api._get_width_height()[1]
     
 
     def locate(self, description):
@@ -676,7 +676,7 @@ class MobileAPI(MobileAPIBase):
 
     def _do_drag(self, start_xy, end_xy, duration=None) -> bool:
         os.system(f"adb -s {self.device_serial_id} shell input swipe {start_xy[0]} {start_xy[1]} {end_xy[0]} {end_xy[1]} {duration}")
-        self.agent.sleep(duration * 0.001)
+        time.sleep(duration * 0.001)
         return True
 
     def _clear_and_input(self, text):

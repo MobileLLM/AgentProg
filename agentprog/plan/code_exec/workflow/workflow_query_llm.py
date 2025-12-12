@@ -42,7 +42,8 @@ def _agentprog_run_mobile(config: AgentProgConfig):
         locator='ui_tars',
         device_serial_id=config.serial,
         llm=llm,
-        locator_config=None
+        locator_config=None,
+        tensorboard_log_dir=config.tensorboard_log_dir
     ))
     def get_screenshot_dict(agent_prog_context: AgentProgContext):
         return agent_prog_context.workflow_context.global_vars.get(SCREENSHOT_DICT, {})
