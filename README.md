@@ -1,8 +1,7 @@
 # AgentProg: Empowering Long-Horizon GUI Agents with Program-Guided Context Management 
 
-
 <p align="center">
-| <a href="https://arxiv.org/pdf/"><b>Paper</b></a> |
+| <a href="https://arxiv.org/pdf/2512.10371"><b>Paper</b></a> |
 </p>
 
 AgentProg is a novel framework that tackles the critical bottleneck of context management in long-horizon GUI automation. Traditional agents struggle with ever-expanding interaction histories, leading to context overflow and loss of critical information. AgentProg reframes this challenge by representing the agent's execution as a **structured program** with explicit variables and control flow, providing a principled mechanism to retain essential information while discarding irrelevant details.
@@ -74,5 +73,13 @@ agentprog_pipeline(config)
 
 ## 📄 Citation
 ```bibtex
-
+@misc{tian2025agentprog,
+      title={AgentProg: Empowering Long-Horizon GUI Agents with Program-Guided Context Management}, 
+      author={Shizuo Tian and Hao Wen and Yuxuan Chen and Jiacheng Liu and Shanhui Zhao and Guohong Liu and Ju Ren and Yunxin Liu and Yuanchun Li},
+      year={2025},
+      eprint={2512.10371},
+      archivePrefix={arXiv},
+      primaryClass={cs.AI},
+      url={https://arxiv.org/abs/2512.10371}, 
+}
 ```
