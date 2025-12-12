@@ -208,7 +208,6 @@ def show_dashboard(agent_prog_context: AgentProgContext, action: str=None, folde
         "belief_state": agent_prog_context.belief_state.belief_state_str,
         "plan": agent_prog_context.belief_state.plan,
     }
-    breakpoint()
     if action is not None:
         show_data.update({"action": action})
     dashboard = AgentLogVisualizer()
