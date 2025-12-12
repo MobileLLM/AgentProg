@@ -159,7 +159,7 @@ if __name__ == "__main__":
         'workflow_context_str': 'In the `Contacts` app, create a new contact with the name "agent prog" and save it.  # <-- current step\nIn the `Contacts` app, create a new contact with the name "agent prog" and save it.  # <-- current step\nIn the `Contacts` app, create a new contact with the name "agent prog" and save it.  # <-- current step\nIn the `Contacts` app, create a new contact with the name "agent prog" and save it.  # <-- current step\n', 
         'code_context': '# Program Start: \n\n# Workflow step: In the `Contacts` app, create a new contact with the name "agent prog" and save it.\n\n# Next lines to generate', 
         'data_and_variables': "\nglobal variables:\nllm: <FoundationModel>\nmobile: <MobileAPI(config=MobileAPIConfig(locator='ui_tars', device_serial_id='emulator-5554', llm=<agentprog.all_ut...))>\ncurrent_screenshot: '{|{|/mnt/nvme0/home/mobile/AgentProg/outputs/images/screenshot_0.png|}|}'\n", 
-        'belief_state': '', 
+        'belief_state': 'test', 
         'plan': 'Open the "Contacts" app.', 
         'action': 'mobile.start_app(app_name="Contacts")'
     }

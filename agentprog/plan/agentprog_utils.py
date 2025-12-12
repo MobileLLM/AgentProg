@@ -148,7 +148,7 @@ def _parse_script_w_belief_state(raw_response: AgentProgRawResponse):
     '''
     回答中包含 action & thought
     '''
-    field_list = [("observation", "--- Observation ---"), ("thought", "--- Thought ---"), ("belief_state", "Updated Belief --- State ---"), ("judgement", "--- Judgement ---"), ("plan", "--- Plan ---"), ("action", "--- Action ---")]
+    field_list = [("observation", "--- Observation ---"), ("thought", "--- Thought ---"), ("belief_state", "--- Updated Belief State ---"), ("judgement", "--- Judgement ---"), ("plan", "--- Plan ---"), ("action", "--- Action ---")]
     parsed_fields = _split_fields(raw_response.content, field_list)
     script = parsed_fields['action'].replace("```python", "").replace("```", "").strip()
     match raw_response.mode:
@@ -208,6 +208,7 @@ def show_dashboard(agent_prog_context: AgentProgContext, action: str=None, folde
         "belief_state": agent_prog_context.belief_state.belief_state_str,
         "plan": agent_prog_context.belief_state.plan,
     }
+    breakpoint()
     if action is not None:
         show_data.update({"action": action})
     dashboard = AgentLogVisualizer()
