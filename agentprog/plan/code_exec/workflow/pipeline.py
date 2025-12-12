@@ -1,6 +1,7 @@
 from __future__ import annotations
 from argparse import ArgumentParser
-from agentprog.all_utils.general_utils import InitResponseArgs, init_get_gemini_response
+import os
+from agentprog.all_utils.general_utils import InitResponseArgs, init_get_gemini_response, init_get_openai_response
 from agentprog.plan.code_exec.workflow.config.core_config import AgentProgConfig
 from agentprog.plan.code_exec.workflow.config.utils import add_common_args
 from agentprog.plan.code_exec.workflow.generate_workflow import GenerateWorkflowArgs, generate_workflow

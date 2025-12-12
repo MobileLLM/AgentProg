@@ -199,7 +199,6 @@ local variables:
 {summarize_variables(local_vars, ignore_class_attr=(), hidden_class_attr=())}
 """
 
-
 def show_dashboard(agent_prog_context: AgentProgContext, action: str=None, folded: bool=True):
     show_data = {
         "goal": agent_prog_context.task_description,
@@ -211,8 +210,5 @@ def show_dashboard(agent_prog_context: AgentProgContext, action: str=None, folde
     }
     if action is not None:
         show_data.update({"action": action})
-    print(show_data)
-    breakpoint()
     dashboard = AgentLogVisualizer()
     dashboard.show(show_data, folded=folded)
-    breakpoint()

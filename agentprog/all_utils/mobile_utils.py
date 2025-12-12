@@ -657,7 +657,7 @@ class MobileAPI(MobileAPIBase):
 
     def _long_touch(self, x, y, duration=None) -> bool:
         try:
-            duration = duration if duration is not None else 400
+            duration = duration if duration is not None else 200
             os.system(f'adb -s {self.device_serial_id} shell input swipe {x} {y} {x} {y} {duration}')
             time.sleep(1)
             return (x, y)

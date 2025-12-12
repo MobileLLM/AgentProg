@@ -7,9 +7,6 @@ import math
 from agentprog.all_utils.general_utils import Messages, init_get_openai_response, init_get_parsed_response, make_user, init_get_claude_response, init_get_gemini_response, InitResponseArgs, TokenStatistics
 from agentprog.plan.code_exec.workflow.workflow_prompts.generate_workflow_prompts.prompt_mobile import get_script_mobile
 from agentprog.plan.workflow_utils import compile_workflow
-
-token_budget = TokenStatistics(prompt_tokens=60000, completion_tokens=math.inf)
-get_response = init_get_gemini_response(init_response_args=InitResponseArgs(model='vertex_ai/gemini-2.5-pro', record_completion_statistics=True, token_budget=token_budget))
 from agentprog.all_utils import log_utils
 logger = log_utils.get_logger(__name__)
 
@@ -29,10 +26,8 @@ def _check_workflow_valid(workflow: str):
     code = compile(compiled_workflow, "<test>", "exec")
     return code
 
-get_parsed_response = init_get_parsed_response(get_response, lambda r: (lambda t, w: (lambda c: (t, w))(_check_workflow_valid(w)))(*_parse_thought_workflow(r)), try_times=6)
-
-def generate_script(task_description, get_prompt, get_response, response_parser, output_path="llm_generated.ap"):
-    context_logger = logger.bind(task_description=task_description, get_response=get_response.__name__, get_prompt=get_prompt.__name__, output_path=output_path)
+def generate_script(task_description, get_prompt, get_parsed_response, response_parser, output_path="llm_generated.ap"):
+    context_logger = logger.bind(task_description=task_description, get_response=get_parsed_response.__name__, get_prompt=get_prompt.__name__, output_path=output_path)
 
     context_logger.info("start timing...")
     start_time = time.perf_counter()
@@ -80,6 +75,6 @@ def handle_generate_workflow_args(generate_workflow_args: GenerateWorkflowArgs):
 
 def generate_workflow(generate_workflow_args: GenerateWorkflowArgs):
     handle_generate_workflow_args(generate_workflow_args)
-    global get_response
-    res = generate_script(generate_workflow_args.task_description, get_prompt=get_script_mobile, get_response=generate_workflow_args.get_workflow_response or get_response, response_parser=_parse_thought_workflow, output_path=generate_workflow_args.output_path)
+    get_parsed_response = init_get_parsed_response(generate_workflow_args.get_workflow_response, lambda r: (lambda t, w: (lambda c: (t, w))(_check_workflow_valid(w)))(*_parse_thought_workflow(r)), try_times=6)
+    res = generate_script(generate_workflow_args.task_description, get_prompt=get_script_mobile, get_parsed_response=get_parsed_response, response_parser=_parse_thought_workflow, output_path=generate_workflow_args.output_path)
     return res

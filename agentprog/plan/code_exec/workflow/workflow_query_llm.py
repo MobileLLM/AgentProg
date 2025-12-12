@@ -19,7 +19,7 @@ from agentprog.plan.code_exec.general_prompts.framework_prompts.mobile_prompt im
 from agentprog.plan.code_exec.workflow.config.core_config import AgentProgConfig
 from agentprog.plan.code_exec.workflow.config.utils import add_common_args
 from agentprog.plan.code_exec.workflow.core.agentprog import run_workflow
-from agentprog.all_utils.general_utils import IMAGE_END, IMAGE_START, TokenStatistics, dump_completion_statistics_dict, init_get_gemini_response, InitResponseArgs
+from agentprog.all_utils.general_utils import IMAGE_END, IMAGE_START, TokenStatistics, dump_completion_statistics_dict, init_get_gemini_response, InitResponseArgs, init_get_openai_response
 from agentprog.plan.workflow_utils import WorkflowContext, HIDDEN_VARS_PREFIX
 from agentprog.plan.agentprog_utils import AgentProgContext, RequestMode, ToolSet, filter_variables_list
 
