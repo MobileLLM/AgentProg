@@ -34,9 +34,11 @@ AgentProg addresses partial observability and environmental dynamics in GUI envi
 - **Runtime Verification**: Continuously validates assumptions against real-time observations
 - **Anomaly Recovery**: Detects belief-reality gaps and triggers corrective actions (e.g., app crashes, form submission failure)
 
-### Example
+## 💡 Example
 
-Task: ContactsAddMultipleContactsAndSms
+**Task: ContactsAddMultipleContactsAndSms**
+
+Task description:
 
 For the following persons:
 Name: Hana Ferreira, Number: +10662908339
@@ -48,31 +50,28 @@ Video (accelerated):
 
 https://github.com/user-attachments/assets/1cd20e7d-5399-4289-b869-bdafd815d8c1
 
-
-
-
 ## 🚀 Getting Started
 
-Setup agentprog package:
+Set up the `agentprog` package:
 ```
 git clone https://github.com/MobileLLM/AgentProg.git
 cd AgentProg
 pip install -e .
 ```
 
-python 3.11+ is recommended for running the agent.
+Python 3.11+ is recommended for running the agent.
 
-Copy `.env.example` to `.env`, and set Gemini api key and base url in `.env`:
+Copy `.env.example` to `.env`, and set the Gemini API key and base URL in `.env`:
 
 ```
 GEMINI_API_KEY=<YOUR_API_KEY_HERE>
 ```
 
-Prepare an android phone or android emulator and connect it use adb.
+Prepare an Android phone or Android emulator and connect it using adb.
 
-For cli usage:
+For CLI usage:
 ```
-agent_prog [task requirements] --serial [serial name, e.g., emulator-5554]
+agentprog [task requirements] --serial [serial name, e.g., emulator-5554]
 ```
 
 For example:
@@ -83,7 +82,7 @@ agentprog "create a new contact named agent prog in contacts app." --serial emul
 You can also use AgentProg in Python:
 
 ```python
-from agentprog import agentprog_pipeline
+from agentprog import agentprog_pipeline, AgentProgConfig
 config = AgentProgConfig(task_description="create a new contact named agent prog in contacts app.", serial="emulator-5554")
 agentprog_pipeline(config)
 ```
