@@ -6,6 +6,8 @@
 
 AgentProg is a novel framework that tackles the critical bottleneck of context management in long-horizon GUI automation. Traditional agents struggle with ever-expanding interaction histories, leading to context overflow and loss of critical information. AgentProg reframes this challenge by representing the agent's execution as a **structured program** with explicit variables and control flow, providing a principled mechanism to retain essential information while discarding irrelevant details.
 
+<img src="assets/introduction.svg" alt="SVG Image">
+
 ## 🌟 Key Features
 
 ### 📝 Semantic Task Program (STP)
@@ -32,7 +34,17 @@ AgentProg addresses partial observability and environmental dynamics in GUI envi
 - **Runtime Verification**: Continuously validates assumptions against real-time observations
 - **Anomaly Recovery**: Detects belief-reality gaps and triggers corrective actions (e.g., app crashes, form submission failure)
 
-<!-- 放一个 Demo 视频在这里 -->
+### Example
+
+Task: ContactsAddMultipleContactsAndSms
+
+For the following persons:
+Name: Hana Ferreira, Number: +10662908339
+Name: Sophie Martin, Number: +18723713947
+Name: Olivia Alves, Number: +16278036185, 
+add them as new contacts, and then use Simple SMS Messenger to send each of them a  'hello, [Name]' message, where [Name] is the name of each contact.
+
+
 
 ## 🚀 Getting Started
 
@@ -55,7 +67,7 @@ Prepare an android phone or android emulator and connect it use adb.
 
 For cli usage:
 ```
-agent_prog [Task requirements] --serial [Serial name, e.g., emulator-5554]
+agent_prog [task requirements] --serial [serial name, e.g., emulator-5554]
 ```
 
 For example:
