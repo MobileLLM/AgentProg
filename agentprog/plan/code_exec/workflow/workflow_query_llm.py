@@ -33,7 +33,7 @@ def _agentprog_run_mobile(config: AgentProgConfig):
     from agentprog.all_utils.fm import get_default_fm
     SCREENSHOT_FUNC = f"{HIDDEN_VARS_PREFIX}_get_screenshot"
     SCREENSHOT_DICT = f"{HIDDEN_VARS_PREFIX}_screenshot_dict"
-    get_response = init_get_gemini_response(init_response_args=InitResponseArgs(model='vertex_ai/gemini-2.5-pro', record_completion_statistics=True, token_budget=TokenStatistics(prompt_tokens=550000 * 6, completion_tokens=120000 * 6), tensorboard_log_dir=config.tensorboard_log_dir))
+    get_response = init_get_gemini_response(init_response_args=InitResponseArgs(model='vertex_ai/gemini-2.5-pro', record_completion_statistics=True, tensorboard_log_dir=config.tensorboard_log_dir))
 
     llm = get_default_fm(get_response=get_response)
     llm.retry_times = 30
@@ -57,7 +57,7 @@ def _agentprog_run_mobile(config: AgentProgConfig):
             image_filepath = image_dir / image_filename
             image_filepath.parent.mkdir(parents=True, exist_ok=True)
             screenshot: Image.Image = mobile_api.take_screenshot()
-            resized_screenshot = screenshot.resize((round(screenshot.width / 4), round(screenshot.height / 4)))
+            resized_screenshot = screenshot.resize((round(screenshot.width), round(screenshot.height)))
             resized_screenshot.save(image_filepath)
             img_count += 1
             if not text_mode:
@@ -73,7 +73,7 @@ def _agentprog_run_mobile(config: AgentProgConfig):
     inject_global_vars = {
         "llm": llm,
         "mobile": mobile_api,
-        SCREENSHOT_FUNC: get_screenshot_func(image_dir=Path(config.image_dir), text_augment=False, text_mode=False),
+        SCREENSHOT_FUNC: get_screenshot_func(image_dir=Path(config.image_dir), text_augment=True, text_mode=False),
         SCREENSHOT_DICT: {}
     }
     def workflow_callback(global_vars, local_vars):
@@ -126,7 +126,7 @@ def _agentprog_run_ai_phone(config: AgentProgConfig):
             image_filepath = image_dir / image_filename
             image_filepath.parent.mkdir(parents=True, exist_ok=True)
             screenshot: Image.Image = mobile_api.take_screenshot()
-            resized_screenshot = screenshot.resize((round(screenshot.width / 4), round(screenshot.height / 4)))
+            resized_screenshot = screenshot.resize((round(screenshot.width), round(screenshot.height)))
             resized_screenshot.save(image_filepath)
             img_count += 1
             if not text_mode:

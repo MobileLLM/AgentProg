@@ -140,7 +140,7 @@ _PATTERN_TO_ACTIVITY = {
     'vlc|vlc app|vlc player': 'org.videolan.vlc/.gui.MainActivity',
     'retro music|retro|retro player': (
         'code.name.monkey.retromusic/.activities.MainActivity'
-    ),
+    )
 }
 
 
@@ -1054,7 +1054,9 @@ class MobileAPI(MobileAPIBase):
         logger.info(f"👆⏱️ Long clicking: {view_description}")
         if "button" not in view_description and "button" not in view_description:
             view_description = f"Clickable component containing {view_description}"
-
+        x, y = self._locate_element(view_description)
+        return self._long_touch(x, y, duration=1000)
+    
     
     def click(self, view_description: str) -> bool:
         """
@@ -1091,7 +1093,6 @@ class MobileAPI(MobileAPIBase):
         x, y = self._locate_element(view_description)
         self._click(x, y)
         time.sleep(0.5)
-        
         # Clear existing text and input new text
         return self._clear_and_input(text)
 
