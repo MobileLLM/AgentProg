@@ -475,6 +475,7 @@ class UiTarsLocator(LocatorAPI):
         self.image_resize_factor = 0.5
         self.language = 'Chinese'
         self.serialize_mode = 'qwen' if self.local_mode else 'openai'
+        self.get_fix_response = config.llm.get_response
         if self.local_mode:
             get_ui_tars_response = init_get_ui_tars_response(base_url='http://127.0.0.1:8888', api_key='')
         else:
@@ -496,7 +497,7 @@ class UiTarsLocator(LocatorAPI):
         """
         from agentprog.all_utils.ui_tars_utils import init_get_ui_tars_response, get_ui_tars_mobile_prompt_local, get_ui_tars_mobile_prompt_api, parse_ui_tars_response, get_ui_tars_messages
         from agentprog.all_utils.general_utils import init_get_parsed_response, init_get_gemini_response
-        get_fix_response = init_get_gemini_response(model='gemini-2.5-pro')
+        get_fix_response = self.get_fix_response
 
 
         get_ui_tars_mobile_prompt = get_ui_tars_mobile_prompt_local if self.local_mode else get_ui_tars_mobile_prompt_api
