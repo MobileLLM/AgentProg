@@ -1,7 +1,7 @@
 from __future__ import annotations
 from argparse import ArgumentParser
 import os
-from agentprog.all_utils.general_utils import InitResponseArgs, init_get_gemini_response, init_get_openai_response
+from agentprog.all_utils.general_utils import InitResponseArgs, init_get_litellm_response, init_get_openai_response
 from agentprog.plan.code_exec.workflow.config.core_config import AgentProgConfig
 from agentprog.plan.code_exec.workflow.config.utils import add_common_args
 from agentprog.plan.code_exec.workflow.generate_workflow import GenerateWorkflowArgs, generate_workflow
@@ -15,8 +15,7 @@ def agentprog_pipeline_core(config: AgentProgConfig):
     tensorboard_log_dir = config.tensorboard_log_dir
     logging_path = config.logging_path
 
-    get_generate_response = init_get_gemini_response(init_response_args=InitResponseArgs(model='vertex_ai/gemini-2.5-pro', record_completion_statistics=True, tensorboard_log_dir=tensorboard_log_dir))
-    generate_workflow_args = GenerateWorkflowArgs(task_description, workflow_path, get_generate_response, logging_path)
+    generate_workflow_args = GenerateWorkflowArgs(task_description, workflow_path, config.get_workflow_response, logging_path)
     generate_workflow(generate_workflow_args)
 
     workflow_result = agentprog_run_core(config)

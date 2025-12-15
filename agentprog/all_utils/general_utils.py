@@ -1,6 +1,7 @@
 from __future__ import annotations
 from bdb import BdbQuit
 from collections.abc import Callable
+import dataclasses
 from functools import partial
 import os
 import time
@@ -512,6 +513,21 @@ class InitResponseArgs:
     tensorboard_log_dir: str = None
     base_url: str = None
     api_key: str = None
+    completion_kwargs: dict = field(default_factory=dict)
+
+    def update_args(self, value: InitResponseArgs):
+        for field in dataclasses.fields(self):
+            if getattr(self, field.name) is None:
+                new_value = getattr(value, field.name)
+                retry_logger.info(f"field {field.name} is not set, fallback to default value ({new_value})")
+                setattr(self, field.name, new_value)
+        if not self.completion_kwargs:
+            self.completion_kwargs.update(value.completion_kwargs)
+        # for completion_key, completion_value in value.completion_kwargs.items():
+        #     if completion_key not in self.completion_kwargs:
+        #         retry_logger.info(f"completion kwargs {completion_key} is not set, fallback to default value ({completion_value})")
+        #         self.completion_kwargs[completion_key] = completion_value
+
 
 no_retry_get_response_error_types = (TokenConsumptionExceededError, KeyboardInterrupt, BdbQuit) # 遇到这些情况不 retry get response
 retry_get_response_wrapper = tenacity.retry(stop=tenacity.stop_after_attempt(10), retry=tenacity.retry_if_not_exception_type(no_retry_get_response_error_types), wait=tenacity.wait_fixed(30), before_sleep=before_sleep_log(retry_logger, logging.WARNING), after=partial(log_retry_error_with_traceback, handler=lambda s: retry_logger.info(f"Attempt failed", error=s)))
@@ -609,7 +625,7 @@ def init_get_claude_response(model: str="claude-4-sonnet", init_response_args: I
         get_claude_response = init_get_response_with_completion_statistics(get_claude_response, init_response_args)
     return get_claude_response
 
-def init_get_gemini_response(model: str="vertex_ai/gemini-2.5-pro", init_response_args: InitResponseArgs=None):
+def init_get_litellm_response(init_response_args: InitResponseArgs=None):
     import litellm
     if init_response_args is not None:
         model = init_response_args.model
@@ -617,9 +633,9 @@ def init_get_gemini_response(model: str="vertex_ai/gemini-2.5-pro", init_respons
     get_gemini_response = lambda m: (lambda r: (lambda _: RichStr(r.choices[0].message.content, r))(retry_logger.info(f"get response", response=r)))(litellm.completion(
         model=model,
         messages=m,
-        temperature=0.6,
-        stream=False,
-        thinking={"type": "enabled"},
+        base_url=init_response_args.base_url,
+        api_key=init_response_args.api_key,
+        **init_response_args.completion_kwargs
     ))
     get_gemini_response = retry_get_response_wrapper(get_gemini_response)
     if init_response_args and init_response_args.record_completion_statistics:

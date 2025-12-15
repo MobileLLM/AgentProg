@@ -1,11 +1,13 @@
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import dataclasses
+from datetime import datetime
+from agentprog.all_utils.general_utils import Any, InitResponseArgs, init_get_litellm_response
 from agentprog.plan.agentprog_utils import RequestMode, ToolSet
 
 @dataclass
 class AgentProgConfig:
-    workflow_path: str
+    workflow_path: str = field(default_factory=lambda: f"outputs/{datetime.now().strftime('%Y%m%d%H%M%S')}.ap")
     task_description: str = ""
     request_mode: str = RequestMode.api.name
     tool_set: str = ToolSet.mobile.name
@@ -20,6 +22,25 @@ class AgentProgConfig:
     logging_path: str = None
     show_dashboard: bool = True
     fold_dashboard: bool = False
+    workflow_model_args: InitResponseArgs = field(default_factory=lambda: InitResponseArgs(model=None))
+    executor_model_args: InitResponseArgs = field(default_factory=lambda: InitResponseArgs(model=None))
+
+    def __post_init__(self):
+        default_model_args = InitResponseArgs(
+            model='vertex_ai/gemini-2.5-pro', 
+            record_completion_statistics=True, 
+            tensorboard_log_dir=self.tensorboard_log_dir,
+            completion_kwargs={
+                "temperature": 0.6,
+                "stream": False,
+                "thinking": {"type": "enabled"}
+            }
+        )
+        
+        self.workflow_model_args.update_args(default_model_args)
+        self.executor_model_args.update_args(default_model_args)
+        self.get_workflow_response = init_get_litellm_response(self.workflow_model_args)
+        self.get_executor_response = init_get_litellm_response(self.executor_model_args)
 
     @classmethod
     def get_field_names(cls):

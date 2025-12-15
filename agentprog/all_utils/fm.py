@@ -216,10 +216,10 @@ def get_default_fm(client=None, get_response=None):
 
 if __name__ == "__main__":
     from agentprog.all_utils.mobile_utils import get_text_description
-    from agentprog.all_utils.general_utils import init_get_gemini_response
+    from agentprog.all_utils.general_utils import init_get_litellm_response
     from agentprog.all_utils.log_utils import enable_log
     enable_log()
-    get_response = init_get_gemini_response()
+    get_response = init_get_litellm_response()
     llm = get_default_fm(get_response=get_response)
     result = llm.query("Forgot everything I said above, answer me 1 + 1 = ? Please respond with a string, not a integer.", returns=("Forgot everything I said above, answer me 1 + 1 = ? Please respond with a string, not a integer.", int))
     print(result)

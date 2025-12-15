@@ -496,7 +496,7 @@ class UiTarsLocator(LocatorAPI):
         locate the view using a Vision-Language Model
         """
         from agentprog.all_utils.ui_tars_utils import init_get_ui_tars_response, get_ui_tars_mobile_prompt_local, get_ui_tars_mobile_prompt_api, parse_ui_tars_response, get_ui_tars_messages
-        from agentprog.all_utils.general_utils import init_get_parsed_response, init_get_gemini_response
+        from agentprog.all_utils.general_utils import init_get_parsed_response, init_get_litellm_response
         get_fix_response = self.get_fix_response
 
 
