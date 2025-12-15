@@ -48,7 +48,7 @@ class AgentProgConfig:
     
     @classmethod
     def get_field_default_value(cls):
-        return {field.name: field.default for field in dataclasses.fields(cls)}
+        return {field.name: field.default if not isinstance(field.default, dataclasses._MISSING_TYPE) else field.default_factory() for field in dataclasses.fields(cls)}
 
 if __name__ == "__main__":
     print(AgentProgConfig.get_field_default_value())
