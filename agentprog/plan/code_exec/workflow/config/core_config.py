@@ -2,7 +2,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 import dataclasses
 from datetime import datetime
-from agentprog.all_utils.general_utils import Any, InitResponseArgs, init_get_litellm_response
+from agentprog.all_utils.general_utils import InitResponseArgs, init_get_response
 from agentprog.plan.agentprog_utils import RequestMode, ToolSet
 
 @dataclass
@@ -39,8 +39,8 @@ class AgentProgConfig:
         
         self.workflow_model_args.update_args(default_model_args)
         self.executor_model_args.update_args(default_model_args)
-        self.get_workflow_response = init_get_litellm_response(self.workflow_model_args)
-        self.get_executor_response = init_get_litellm_response(self.executor_model_args)
+        self.get_workflow_response = init_get_response(self.workflow_model_args)
+        self.get_executor_response = init_get_response(self.executor_model_args)
 
     @classmethod
     def get_field_names(cls):

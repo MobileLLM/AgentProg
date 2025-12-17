@@ -17,12 +17,9 @@ from uuid import uuid4
 import io
 import requests
 import base64
-from openai import OpenAI
-import openai
 from tenacity import before_sleep_log, retry, wait_fixed, stop_after_attempt
 from agentprog.all_utils.log_utils import structlog, logging
 from dotenv import load_dotenv; load_dotenv(override=True)
-from openai import AzureOpenAI
 from tenacity import RetryCallState
 import tenacity
 import atexit
@@ -363,6 +360,8 @@ def _parse_response_to_completion_info(raw_response, meta_info: FunctionMetaInfo
             prompt_tokens=raw_response.usage.prompt_tokens,
             completion_tokens=raw_response.usage.completion_tokens,
         )
+    if isinstance(raw_response, (dict, list)):
+        raise NotImplementedError("Json Format Response is Not Implemented!")
     else:
         try:
             import litellm
@@ -415,7 +414,7 @@ def init_get_response_with_completion_statistics(get_response: Callable[[list], 
     token_budget = init_response_args and init_response_args.token_budget
 
     frame = inspect.currentframe()
-    meta_info = _get_meta_info(frame.f_back.f_back)
+    meta_info = _get_meta_info(frame.f_back)
     completion_statistics = CompletionStatistics(get_response_func=repr(get_response), meta_info=meta_info) # 默认而言，一个 get_response 对应一个 statistics。
     
     log_to_tensorboard = init_response_args.tensorboard_log_dir is not None
@@ -435,7 +434,7 @@ def init_get_response_with_completion_statistics(get_response: Callable[[list], 
         # 获取当前调用栈
         frame = inspect.currentframe()
         # 获取调用栈中的上一层（即调用 sample_function 的位置）
-        meta_info = _get_meta_info(frame.f_back.f_back)
+        meta_info = _get_meta_info(frame.f_back)
         response = get_response(m)
         try:
             # 记录相关信息。
@@ -465,19 +464,6 @@ def init_get_response_with_completion_statistics(get_response: Callable[[list], 
     completion_statistics_dict[get_response_with_statistics] = completion_statistics # 在全局字典中注册该信息
 
     return get_response_with_statistics
-
-@retry(stop=stop_after_attempt(3), wait=wait_fixed(6), before_sleep=before_sleep_log(retry_logger, logging.WARNING))
-def get_response(client: OpenAI, *args, model='gpt-4o') -> str:
-    '''
-    *args: 图片 or 文字。
-    '''
-    messages = [make_user(*args).serialize()]
-    res = client.chat.completions.create(
-        model=model,    # 通过 endpoint 指定模型
-        messages=messages,
-        stream=False
-    )
-    return res.choices[0].message.content
 
 # local server model
 def get_remote_response(prompt: str, server_url: str = "http://localhost:8888/generate"):
@@ -514,6 +500,7 @@ class InitResponseArgs:
     base_url: str = None
     api_key: str = None
     completion_kwargs: dict = field(default_factory=dict)
+    use_sdk: bool = True # 如果关闭，将使用 requests 库请求。
 
     def update_args(self, value: InitResponseArgs):
         for field in dataclasses.fields(self):
@@ -532,12 +519,19 @@ class InitResponseArgs:
 no_retry_get_response_error_types = (TokenConsumptionExceededError, KeyboardInterrupt, BdbQuit) # 遇到这些情况不 retry get response
 retry_get_response_wrapper = tenacity.retry(stop=tenacity.stop_after_attempt(10), retry=tenacity.retry_if_not_exception_type(no_retry_get_response_error_types), wait=tenacity.wait_fixed(30), before_sleep=before_sleep_log(retry_logger, logging.WARNING), after=partial(log_retry_error_with_traceback, handler=lambda s: retry_logger.info(f"Attempt failed", error=s)))
 
+def init_get_response(init_response_args: InitResponseArgs=None):
+    if init_response_args.use_sdk:
+        return init_get_litellm_response(init_response_args)
+    else:
+        return init_get_requests_response(init_response_args)
+
 # 单例模式，只有唯一的 client!
 openai_client = None
 claude_client = None
 local_openai_client = None # 本地 llm server
 
 def init_get_local_openai_response(model="local model", server_url: str = None, init_response_args: InitResponseArgs=None):
+    from openai import OpenAI, AzureOpenAI
     if init_response_args is not None:
         model = init_response_args.model
         record_completion_statistics = init_response_args.record_completion_statistics
@@ -567,6 +561,7 @@ def init_get_openai_response(model: str="gpt-4.1", use_azure=True, init_response
     '''
     可以选择 OpenAI, AzureOpenAI, 或者多个 Config 融合。
     '''
+    from openai import OpenAI, AzureOpenAI
     if init_response_args is not None:
         model = init_response_args.model
         base_url = init_response_args.base_url
@@ -601,6 +596,7 @@ def init_get_openai_response(model: str="gpt-4.1", use_azure=True, init_response
     return get_openai_response
 
 def init_get_claude_response(model: str="claude-4-sonnet", init_response_args: InitResponseArgs=None):
+    from openai import OpenAI, AzureOpenAI
     if init_response_args is not None:
         model = init_response_args.model
     global claude_client
@@ -629,18 +625,74 @@ def init_get_litellm_response(init_response_args: InitResponseArgs=None):
     import litellm
     if init_response_args is not None:
         model = init_response_args.model
-    retry_logger.info(f"initializing get gemini response", model=model)
-    get_gemini_response = lambda m: (lambda r: (lambda _: RichStr(r.choices[0].message.content, r))(retry_logger.info(f"get response", response=r)))(litellm.completion(
+    retry_logger.info(f"initializing get litellm response", model=model)
+    get_litellm_response = lambda m: (lambda r: (lambda _: RichStr(r.choices[0].message.content, r))(retry_logger.info(f"get response", response=r)))(litellm.completion(
         model=model,
         messages=m,
         base_url=init_response_args.base_url,
         api_key=init_response_args.api_key,
         **init_response_args.completion_kwargs
     ))
-    get_gemini_response = retry_get_response_wrapper(get_gemini_response)
+    get_litellm_response = retry_get_response_wrapper(get_litellm_response)
     if init_response_args and init_response_args.record_completion_statistics:
-        get_gemini_response = init_get_response_with_completion_statistics(get_gemini_response, init_response_args)
-    return get_gemini_response
+        get_litellm_response = init_get_response_with_completion_statistics(get_litellm_response, init_response_args)
+    return get_litellm_response
+
+def _handle_openai_requests(model_name: str, messages, base_url: str, api_key, **completion_kwargs):
+    base_url = base_url.removesuffix('/')
+    if not base_url.endswith('/chat/completions'):
+        base_url = f"{base_url}/chat/completions"
+
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Content-Type": "application/json"
+    }
+    payload = {
+        "model": model_name,
+        "messages": messages
+    }
+
+    try:
+        response = requests.post(base_url, headers=headers, json=payload, timeout=60)
+        response.raise_for_status()
+        response_data = response.json()
+        return response_data
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"请求 OpenAI 时发生错误: {e}\n响应内容: {e.response.text if e.response else 'N/A'}")
+
+
+def requests_completion(model: str, messages, base_url, api_key, **completion_kwargs):
+    if "/" in model:
+        provider, model_name = model.split("/")
+    else:
+        provider, model_name = "openai", model
+    handler_dict = {
+        "openai": _handle_openai_requests
+    }
+
+    return handler_dict[provider.lower()](model_name, messages, base_url, api_key, **completion_kwargs)
+
+def init_get_requests_response(init_response_args: InitResponseArgs=None):
+    """
+    一个不依赖任何 SDK，仅使用 requests 调用大模型 API 的客户端。
+    支持 OpenAI 请求格式。
+    必须指定 API_KEY 和 BASE_URL。
+    """
+    if init_response_args is not None:
+        model = init_response_args.model
+    retry_logger.info(f"initializing get requests response", model=model)
+    get_requests_response = lambda m: (lambda r: (lambda _: RichStr(r['choices'][0]['message']['content'], r))(retry_logger.info(f"get response", response=r)))(requests_completion(
+        model=model,
+        messages=m,
+        base_url=init_response_args.base_url,
+        api_key=init_response_args.api_key,
+        **init_response_args.completion_kwargs
+    ))
+    get_requests_response = retry_get_response_wrapper(get_requests_response)
+    if init_response_args and init_response_args.record_completion_statistics:
+        get_requests_response = init_get_response_with_completion_statistics(get_requests_response, init_response_args)
+    return get_requests_response
+
 
 def init_get_parsed_response(get_response, response_parser, try_times=1, get_fix_response=None, prepare_fix_messages=None):
     get_fix_response = get_fix_response or get_response
