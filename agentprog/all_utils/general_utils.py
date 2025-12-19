@@ -663,7 +663,7 @@ def _handle_openai_requests(model_name: str, messages, base_url: str, api_key, *
 
 def requests_completion(model: str, messages, base_url, api_key, **completion_kwargs):
     if "/" in model:
-        provider, model_name = model.split("/")
+        provider, model_name = model.split("/", maxsplit=1)
     else:
         provider, model_name = "openai", model
     handler_dict = {
