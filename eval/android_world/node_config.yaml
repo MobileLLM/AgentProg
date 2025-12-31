@@ -1,0 +1,4 @@
+processes:
+  - console_port: 5554
+    grpc_port: 8554
+  # You can add more emulators here to multi-process benchmark evaluation.

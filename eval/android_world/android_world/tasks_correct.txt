@@ -1,0 +1,6 @@
+ContactsAddContactAndSms
+ContactsAddMultipleContactsAndSms
+SimpleCalendarDeleteEventsLong
+SimpleCalendarDeleteEventsSuperLong
+# ExpenseDeleteMultipleSuperLong
+RecipeDeleteMultipleRecipesLong
