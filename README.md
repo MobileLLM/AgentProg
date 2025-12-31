@@ -8,6 +8,10 @@ AgentProg is a novel framework that tackles the critical bottleneck of context m
 
 <img src="assets/introduction.png" alt="Introduction Image">
 
+## 🔥 Updates
+*   **[2025.12.31]** We released **AW-Extend**, a benchmark extension based on AndroidWorld designed to evaluate agents on long-horizon compositional and iterative tasks. The evaluation code for AndroidWorld has also been updated.
+*   **[2025.12.07]** Official release of the **AgentProg** source code.
+
 ## 🌟 Key Features
 
 ### 📝 Semantic Task Program (STP)
