@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from pathlib import Path
 import structlog
 import logging
 from itertools import chain
@@ -49,6 +50,7 @@ def enable_log(logging_path: str = None):
     # logging.basicConfig(handlers=handlers, level=LOG_LEVEL)
 
 def get_filehandler(logging_path):
+    Path(logging_path).parent.mkdir(parents=True, exist_ok=True)
     file_handler = logging.FileHandler(logging_path, encoding='utf-8')
     file_formatter = logging.Formatter('%(message)s')
     file_handler.setFormatter(file_formatter)
@@ -66,6 +68,7 @@ class LogConfig:
     def logging_path(self, value):
         if value == self._logging_path: # 没有修改，跳过
             return
+        Path(value).parent.mkdir(parents=True, exist_ok=True)
         self._logging_path = value
         if value is None:
             return
