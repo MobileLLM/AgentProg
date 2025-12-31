@@ -2,7 +2,7 @@
 
 <div align="center">
 
-[![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2512.10371)
+[![Paper](https://img.shields.io/badge/paper-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2512.10371)
 
 </div>
 
