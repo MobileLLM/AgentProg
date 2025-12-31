@@ -50,12 +50,13 @@ See demo videos on our [website](https://google-research.github.io/android_world
     Linux:
     ~/Android/Sdk/emulator/emulator -avd AndroidWorldAvd -snapshot init -grpc 8554
     
+    # Note from AgentProg Team: In server without GUI, you can use the following command to create a emulator and run it without GUI. 
+    # Then, Use remote control tools like ws-scrcpy to control the emulator.
     sdkmanager "system-images;android-33;google_apis;x86_64"
     avdmanager list device
     avdmanager create avd -n AndroidWorldAvd -k "system-images;android-33;google_apis;x86_64" -d "pixel_6"
 
     emulator -avd AndroidWorldAvd -no-snapshot -grpc 8554 -no-window
-    emulator -avd AndroidWorldAvd -snapshot aw_clean -grpc 8554 -no-window -port 5554
     ```
 
 1. [Optional] It's recommended to use `conda`, which you can download [here](https://docs.anaconda.com/free/miniconda/miniconda-install/).
