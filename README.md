@@ -1,8 +1,13 @@
 # AgentProg: Empowering Long-Horizon GUI Agents with Program-Guided Context Management 
 
-<p align="center">
-| <a href="https://arxiv.org/pdf/2512.10371"><b>📑 Paper</b></a> |
-</p>
+<div align="center">
+
+[![Paper](https://img.shields.io/badge/paper-A42C25?style=for-the-badge&logo=arxiv&logoColor=white)](https://arxiv.org/abs/2512.10371)
+
+</div>
+
+
+
 
 AgentProg is a novel framework that tackles the critical bottleneck of context management in long-horizon GUI automation. Traditional agents struggle with ever-expanding interaction histories, leading to context overflow and loss of critical information. AgentProg reframes this challenge by representing the agent's execution as a **structured program** with explicit variables and control flow, providing a principled mechanism to retain essential information while discarding irrelevant details.
 
