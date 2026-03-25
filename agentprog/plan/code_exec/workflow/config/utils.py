@@ -1,8 +1,23 @@
 from __future__ import annotations
-from argparse import ArgumentParser
+import json
+from argparse import ArgumentParser, Namespace
 from agentprog.plan.agentprog_utils import RequestMode, ToolSet
 
 str_to_bool = lambda s: True if s.lower() == "true" else False
+
+def resolve_model_args(full_args: Namespace):
+    """Collect --{prefix}.field dot-style args into InitResponseArgs objects and remove the flat keys."""
+    from agentprog.all_utils.general_utils import InitResponseArgs
+    for prefix in ("workflow_model_args", "executor_model_args"):
+        flat_keys = [k for k in list(vars(full_args)) if k.startswith(f"{prefix}__")]
+        kwargs = {}
+        for k in flat_keys:
+            value = vars(full_args).pop(k)
+            if value is not None:
+                field_name = k[len(prefix) + 2:]
+                kwargs[field_name] = json.loads(value) if field_name == "completion_kwargs" else value
+        if kwargs:
+            vars(full_args)[prefix] = InitResponseArgs(**kwargs)
 
 def add_common_args(arg_parser: ArgumentParser):
     arg_parser.add_argument("--request_mode", default=None, choices=RequestMode._member_names_, required=False, help="Type of agent_prog mode (api or local llm)")
@@ -18,3 +33,9 @@ def add_common_args(arg_parser: ArgumentParser):
     arg_parser.add_argument("--logging_path", default=None, type=str, required=False, help="logging path")
     arg_parser.add_argument("--show_dashboard", default=None, type=str_to_bool, required=False, help="Show the dashboard")
     arg_parser.add_argument("--fold_dashboard", default=None, type=str_to_bool, required=False, help="Fold the dashboard")
+    for prefix in ("workflow_model_args", "executor_model_args"):
+        arg_parser.add_argument(f"--{prefix}.model", dest=f"{prefix}__model", default=None, type=str, required=False, help=f"Model name for {prefix} in LiteLLM style (e.g. gemini/gemini-2.5-pro)")
+        arg_parser.add_argument(f"--{prefix}.base_url", dest=f"{prefix}__base_url", default=None, type=str, required=False, help=f"Base URL for {prefix}")
+        arg_parser.add_argument(f"--{prefix}.api_key", dest=f"{prefix}__api_key", default=None, type=str, required=False, help=f"API key for {prefix}")
+        arg_parser.add_argument(f"--{prefix}.use_sdk", dest=f"{prefix}__use_sdk", default=None, type=str_to_bool, required=False, help=f"Use SDK (vs requests) for {prefix}")
+        arg_parser.add_argument(f"--{prefix}.completion_kwargs", dest=f"{prefix}__completion_kwargs", default=None, type=str, required=False, help=f'JSON string of extra completion kwargs for {prefix} (e.g. \'{{"temperature": 0.5}}\')')

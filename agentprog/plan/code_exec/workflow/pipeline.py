@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 import os
 from agentprog.all_utils.general_utils import InitResponseArgs, init_get_litellm_response, init_get_openai_response
 from agentprog.plan.code_exec.workflow.config.core_config import AgentProgConfig
-from agentprog.plan.code_exec.workflow.config.utils import add_common_args
+from agentprog.plan.code_exec.workflow.config.utils import add_common_args, resolve_model_args
 from agentprog.plan.code_exec.workflow.generate_workflow import GenerateWorkflowArgs, generate_workflow
 from agentprog.plan.code_exec.workflow.workflow_query_llm import agentprog_run_core
 from datetime import datetime
@@ -39,6 +39,8 @@ def agentprog_pipeline_cli(args: list[str]=None):
     if full_args.logging_path is not None:
         from agentprog.all_utils import log_utils
         log_utils.global_log_config.logging_path = full_args.logging_path
+
+    resolve_model_args(full_args)
 
     # run task program
     config = AgentProgConfig(**vars(full_args))

@@ -27,7 +27,7 @@ class AgentProgConfig:
 
     def __post_init__(self):
         default_model_args = InitResponseArgs(
-            model='vertex_ai/gemini-2.5-pro', 
+            model='gemini/gemini-2.5-pro', 
             record_completion_statistics=True, 
             tensorboard_log_dir=self.tensorboard_log_dir,
             completion_kwargs={

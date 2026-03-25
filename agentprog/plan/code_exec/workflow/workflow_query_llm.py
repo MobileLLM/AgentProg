@@ -17,7 +17,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from agentprog.all_utils.mobile_utils import get_date_on_mobile_phone
 from agentprog.plan.code_exec.general_prompts.framework_prompts.mobile_prompt import get_mobile_prompt
 from agentprog.plan.code_exec.workflow.config.core_config import AgentProgConfig
-from agentprog.plan.code_exec.workflow.config.utils import add_common_args
+from agentprog.plan.code_exec.workflow.config.utils import add_common_args, resolve_model_args
 from agentprog.plan.code_exec.workflow.core.agentprog import run_workflow
 from agentprog.all_utils.general_utils import IMAGE_END, IMAGE_START, TokenStatistics, dump_completion_statistics_dict, init_get_litellm_response, InitResponseArgs, init_get_openai_response
 from agentprog.plan.workflow_utils import WorkflowContext, HIDDEN_VARS_PREFIX
@@ -103,7 +103,7 @@ def _agentprog_run_ai_phone(config: AgentProgConfig):
     from agentprog.all_utils.fm import get_default_fm
     SCREENSHOT_FUNC = f"{HIDDEN_VARS_PREFIX}_get_screenshot"
     SCREENSHOT_DICT = f"{HIDDEN_VARS_PREFIX}_screenshot_dict"
-    get_response = init_get_litellm_response(init_response_args=InitResponseArgs(model='vertex_ai/gemini-2.5-pro', record_completion_statistics=True, token_budget=TokenStatistics(prompt_tokens=550000 * 6, completion_tokens=120000 * 6), tensorboard_log_dir=config.tensorboard_log_dir))
+    get_response = init_get_litellm_response(init_response_args=InitResponseArgs(model='gemini/gemini-2.5-pro', record_completion_statistics=True, token_budget=TokenStatistics(prompt_tokens=550000 * 6, completion_tokens=120000 * 6), tensorboard_log_dir=config.tensorboard_log_dir))
 
     llm = get_default_fm(get_response=get_response)
     llm.retry_times = 30
@@ -202,6 +202,8 @@ def agentprog_run_cli(args: list[str]=None):
     if full_args.logging_path is not None:
         from agentprog.all_utils import log_utils
         log_utils.global_log_config.logging_path = full_args.logging_path
+
+    resolve_model_args(full_args)
 
     config = AgentProgConfig(**vars(full_args))
 
