@@ -44,11 +44,6 @@ See demo videos on our [website](https://google-research.github.io/android_world
     # ~/Library/Android/sdk/emulator/emulator
     EMULATOR_NAME=AndroidWorldAvd # From previous step
     ~/Library/Android/sdk/emulator/emulator -avd $EMULATOR_NAME -no-snapshot -grpc 8554
-
-    MAC:
-    ~/Library/Android/sdk/emulator/emulator -avd AndroidWorldAvd -no-snapshot -grpc 8554
-    Linux:
-    ~/Android/Sdk/emulator/emulator -avd AndroidWorldAvd -snapshot init -grpc 8554
     
     # Note from AgentProg Team: In server without GUI, you can use the following command to create a emulator and run it without GUI. 
     # Then, Use remote control tools like ws-scrcpy to control the emulator.
