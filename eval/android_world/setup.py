@@ -11,43 +11,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 """Setup file for AndroidWorld."""
-
 import os
-
-import pkg_resources
 import setuptools
 from setuptools.command import build_py
-
 _ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
 _PACKAGE_PROTOS = (
     'android_world/task_evals/information_retrieval/proto/state.proto',
     'android_world/task_evals/information_retrieval/proto/task.proto',
 )
-
-
 class _GenerateProtoFiles(setuptools.Command):
   """Command to generate protobuf bindings for AndroidEnv protos."""
-
   descriptions = 'Generates Python protobuf bindings for AndroidEnv protos.'
   user_options = []
-
   def initialize_options(self):
     pass
-
   def finalize_options(self):
     pass
-
   def run(self):
-    # Import grpc_tools here, after setuptools has installed setup_requires
-    # dependencies.
+    # 在 build_py 阶段，构建依赖已经被隔离环境安装好了，直接 import 即可
     from grpc_tools import protoc  # pylint: disable=g-import-not-at-top
-
-    grpc_protos_include = pkg_resources.resource_filename(
-        'grpc_tools', '_proto'
-    )
-
+    import grpc_tools
+    # 替代原先的 pkg_resources
+    grpc_tools_dir = os.path.dirname(grpc_tools.__file__)
+    grpc_protos_include = os.path.join(grpc_tools_dir, '_proto')
     for proto_path in _PACKAGE_PROTOS:
       proto_args = [
           'grpc_tools.protoc',
@@ -59,21 +46,16 @@ class _GenerateProtoFiles(setuptools.Command):
       ]
       if protoc.main(proto_args) != 0:
         raise RuntimeError('ERROR: {}'.format(proto_args))
-
-
 class _BuildPy(build_py.build_py):
   """Generate protobuf bindings during the build_py stage."""
-
   def run(self):
     self.run_command('generate_protos')
     super().run()
-
-
 setuptools.setup(
     name='android_world',
     package_data={'': ['proto/*.proto']},  # Copy protobuf files.
     packages=setuptools.find_packages(),
-    setup_requires=['grpcio-tools'],
+    # setup_requires=['grpcio-tools'], # 注释掉或删除这行，现代构建不推荐
     cmdclass={
         'build_py': _BuildPy,
         'generate_protos': _GenerateProtoFiles,

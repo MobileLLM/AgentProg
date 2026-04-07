@@ -4,6 +4,7 @@ import dataclasses
 from datetime import datetime
 from agentprog.all_utils.general_utils import InitResponseArgs, init_get_response
 from agentprog.plan.agentprog_utils import RequestMode, ToolSet
+import os
 
 @dataclass
 class AgentProgConfig:
@@ -27,13 +28,20 @@ class AgentProgConfig:
 
     def __post_init__(self):
         default_model_args = InitResponseArgs(
-            model='gemini/gemini-2.5-pro', 
+            model=os.getenv("MODEL") or 'gemini/gemini-2.5-pro', 
+            api_key=os.getenv("GEMINI_API_KEY"),
+            base_url=os.getenv("GEMINI_BASE_URL"),
             record_completion_statistics=True, 
             tensorboard_log_dir=self.tensorboard_log_dir,
             completion_kwargs={
                 "temperature": 0.6,
                 "stream": False,
-                "thinking": {"type": "enabled"}
+                # "extra_body": {
+                    
+                # }
+                # "thinking": {"type": "enabled"}
+                # "reasoning_effort": "high"
+                # "reasoning": {"effort": "high"},
             }
         )
         

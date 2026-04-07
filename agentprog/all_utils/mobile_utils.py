@@ -479,7 +479,7 @@ class UiTarsLocator(LocatorAPI):
         if self.local_mode:
             get_ui_tars_response = init_get_ui_tars_response(base_url='http://127.0.0.1:8888', api_key='')
         else:
-            get_ui_tars_response = init_get_ui_tars_response(init_response_args=InitResponseArgs(model="doubao-1.5-ui-tars-250428", record_completion_statistics=True, tensorboard_log_dir=config.tensorboard_log_dir))
+            get_ui_tars_response = init_get_ui_tars_response(init_response_args=InitResponseArgs(model="doubao-seed-1-8-251228", record_completion_statistics=True, tensorboard_log_dir=config.tensorboard_log_dir))
         self.get_ui_tars_response = get_ui_tars_response
 
     # @property

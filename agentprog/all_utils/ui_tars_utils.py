@@ -261,7 +261,7 @@ def kill_app(app, serial: str) -> bool:
     except Exception as e:
         raise e
 
-def init_get_ui_tars_response(base_url: str=None, api_key: str=None, model: str="doubao-1.5-ui-tars-250428", init_response_args: InitResponseArgs=None):
+def init_get_ui_tars_response(base_url: str=None, api_key: str=None, model: str="doubao-seed-1-8-251228", init_response_args: InitResponseArgs=None):
     if init_response_args is not None:
         model = init_response_args.model
         base_url = init_response_args.base_url
@@ -278,7 +278,6 @@ def init_get_ui_tars_response(base_url: str=None, api_key: str=None, model: str=
         logger.info(f"Successfully initialized client {type(ui_tars_client)}")
 
     logger.info(f"initializing get ui_tars response", ui_tars_client=ui_tars_client, model=model)
-
     get_ui_tars_response = lambda m: (lambda r: RichStr(r.choices[0].message.content, r))(ui_tars_client.chat.completions.create(
         model=model,    # 通过 endpoint 指定模型
         messages=m,

@@ -566,7 +566,7 @@ class UITARS15Agent:
 
         data = {
             # "model": "ep-20250722213820-fqrbm",
-            "model": "doubao-1.5-ui-tars-250428",
+            "model": "doubao-seed-1-8-251228",
             "messages": messages,
             "max_tokens": self.max_tokens,
             "top_p": self.top_p,
