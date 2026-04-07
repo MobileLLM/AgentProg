@@ -34,15 +34,14 @@ class AgentProgConfig:
             record_completion_statistics=True, 
             tensorboard_log_dir=self.tensorboard_log_dir,
             completion_kwargs={
-                "temperature": 0.6,
+                "temperature": 0.1,
                 "stream": False,
-                # "extra_body": {
-                    
-                # }
+                "extra_body": {
+                    "thinking": {"type": "enabled"}
+                },
                 # "thinking": {"type": "enabled"}
-                # "reasoning_effort": "high"
-                # "reasoning": {"effort": "high"},
-            }
+            },
+            use_sdk=True
         )
         
         self.workflow_model_args.update_args(default_model_args)

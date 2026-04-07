@@ -516,7 +516,7 @@ class UiTarsLocator(LocatorAPI):
             serialize_mode=self.serialize_mode
         )
         parsed_dict, response = get_parsed_response(messages)
-        logger.debug(f"UI TARS model locate view response: {response}")
+        logger.info(f"UI TARS model locate view response: {response}")
         x, y = int(parsed_dict.get("args")['start_box'][0]), int(parsed_dict.get("args")['start_box'][1])
         current_screenshot.close()
         return (x, y, x, y)

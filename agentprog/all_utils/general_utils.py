@@ -500,13 +500,13 @@ class InitResponseArgs:
     base_url: str = None
     api_key: str = None
     completion_kwargs: dict = field(default_factory=dict)
-    use_sdk: bool = True # 如果关闭，将使用 requests 库请求。
+    use_sdk: bool = None # 如果关闭，将使用 requests 库请求。
 
     def update_args(self, value: InitResponseArgs):
         for field in dataclasses.fields(self):
             if getattr(self, field.name) is None:
                 new_value = getattr(value, field.name)
-                retry_logger.info(f"field {field.name} is not set, fallback to default value ({new_value})")
+                retry_logger.debug(f"field {field.name} is not set, fallback to default value ({new_value})")
                 setattr(self, field.name, new_value)
         if not self.completion_kwargs:
             self.completion_kwargs.update(value.completion_kwargs)
