@@ -103,6 +103,47 @@ config = AgentProgConfig(task_description="create a new contact named agent prog
 agentprog_pipeline(config)
 ```
 
+## Docker Support
+
+Besides, if you prefer Docker, we have prepared a Docker image for your convenience. This image comes pre-configured with an Android emulator, the AgentProg source code, and the ws-scrcpy tool.
+
+You can pull and run the image using the following commands:
+
+```
+docker pull guoyun812/agentprog:v0.0
+docker run -it --rm --privileged -p 8000:8000 -v .env:/AgentProg/.env guoyun/agentprog:v0.0 # Please ensure you are in the directory containing your .env file
+```
+
+Or build image by yourself:
+
+```
+docker build -t agentprog:latest -f Dockerfile .
+```
+
+Run `bash docker_setup/start_emu_headless.sh` to start an android emulator. Then you can run the minimal example:
+
+```
+agentprog "create a new contact named agent prog in contacts app." --serial emulator-5554
+```
+
+For visualization, you can run `ws-scrcpy` and open `localhost:8000` in your browser:
+
+```
+cd /ws-scrcpy
+npm start
+```
+
+You can run the following command to perform the necessary setup for AndroidWorld before benchmark evaluation:
+
+```
+cd /AgentProg/eval/android_world
+python run.py \
+  --suite_family=android_world \
+  --agent_name=human_agent \
+  --perform_emulator_setup \
+  --tasks=ContactsAddContact
+```
+
 ## 📄 Citation
 ```bibtex
 @misc{tian2025agentprog,
